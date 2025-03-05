@@ -2,37 +2,51 @@ import streamlit as st
 import sys
 import subprocess
 
-# Attempt to install dependencies if not present
 def install_dependencies():
-    """Attempt to install required dependencies"""
-    dependencies = ['openpyxl', 'pandas']
-    for dep in dependencies:
-        try:
-            subprocess.check_call([sys.executable, '-m', 'pip', 'install', dep])
-        except Exception as e:
-            st.error(f"Error installing {dep}: {e}")
-            return False
-    return True
-
-# Check and install dependencies
-def check_dependencies():
-    """Check and install missing dependencies"""
+    """
+    More robust dependency installation method
+    """
     try:
-        import openpyxl
-        import pandas
+        # Use sys.executable to ensure we're using the correct Python interpreter
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
+        
+        # List of dependencies to install
+        dependencies = ['openpyxl', 'pandas']
+        
+        for dep in dependencies:
+            try:
+                # Attempt to import first
+                __import__(dep)
+            except ImportError:
+                # If import fails, try to install
+                st.info(f"Installing {dep}...")
+                result = subprocess.run([sys.executable, '-m', 'pip', 'install', dep], 
+                                        capture_output=True, 
+                                        text=True)
+                
+                # Check installation result
+                if result.returncode != 0:
+                    st.error(f"Failed to install {dep}. Error: {result.stderr}")
+                    return False
         return True
-    except ImportError:
-        st.warning("Missing required dependencies. Attempting to install...")
-        return install_dependencies()
+    except Exception as e:
+        st.error(f"Dependency installation error: {e}")
+        return False
 
-# Only proceed if dependencies are installed
-if not check_dependencies():
-    st.error("Could not install required dependencies. Please check your internet connection.")
-    st.stop()
+# Attempt to import required libraries
+try:
+    import openpyxl
+    import pandas as pd
+except ImportError:
+    st.warning("Missing required dependencies. Attempting to install...")
+    if not install_dependencies():
+        st.error("Could not install dependencies. Please check:")
+        st.error("1. Internet connection")
+        st.error("2. Pip installation")
+        st.error("3. Python environment permissions")
+        st.stop()
 
-# Now import other required libraries
 import os
-import pandas as pd
 from datetime import datetime
 import base64
 import uuid
