@@ -1,11 +1,11 @@
 import streamlit as st
-import json
 import os
 import pandas as pd
 from datetime import datetime
+import base64
+import uuid
 
-SURVEY_FILE = "survey_results.json"
-EXCEL_FILE = "survey_results.xlsx"
+SURVEY_RESULTS_DIR = "survey_results"
 
 def flatten_nested_dict(nested_dict, parent_key='', sep='_'):
     """
@@ -27,37 +27,41 @@ def flatten_nested_dict(nested_dict, parent_key='', sep='_'):
     
     return dict(items)
 
+def sanitize_filename(filename):
+    """
+    Sanitize the filename to remove any invalid characters
+    """
+    import re
+    return re.sub(r'[<>:"/\\|?*]', '_', filename).strip()
+
 def save_survey_data(survey_data):
     """
-    Save survey responses to both JSON and Excel files with comprehensive data handling.
+    Save survey responses to an Excel file with comprehensive data handling.
+    Each survey creates a unique file named after the ashram.
     """
+    # Ensure results directory exists
+    os.makedirs(SURVEY_RESULTS_DIR, exist_ok=True)
+    
     # Add timestamp
     survey_data['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    # Read existing data
-    if os.path.exists(SURVEY_FILE):
-        with open(SURVEY_FILE, "r") as file:
-            existing_data = json.load(file)
-    else:
-        existing_data = []
+    # Get ashram name, use a default if not provided
+    ashram_name = survey_data.get('ashram_name', 'Unknown_Ashram')
+    
+    # Sanitize ashram name for filename
+    safe_ashram_name = sanitize_filename(ashram_name)
+    
+    # Create a unique filename with timestamp to prevent overwriting
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{safe_ashram_name}_{timestamp}.xlsx"
+    file_path = os.path.join(SURVEY_RESULTS_DIR, filename)
 
-    # Append new data
-    existing_data.append(survey_data)
-
-    # Save to JSON
-    with open(SURVEY_FILE, "w") as file:
-        json.dump(existing_data, file, indent=4)
-
-    # Prepare data for Excel
     try:
-        # Flatten the entire survey data
-        flat_data = []
-        for entry in existing_data:
-            flat_entry = flatten_nested_dict(entry)
-            flat_data.append(flat_entry)
+        # Flatten the survey data
+        flat_entry = flatten_nested_dict(survey_data)
 
         # Create DataFrame
-        df = pd.DataFrame(flat_data)
+        df = pd.DataFrame([flat_entry])
 
         # Reorder columns to make it more readable
         column_order = ['timestamp']
@@ -82,10 +86,21 @@ def save_survey_data(survey_data):
         df = df[column_order]
 
         # Save to Excel
-        df.to_excel(EXCEL_FILE, index=False)
-        st.success(f"Data saved to {EXCEL_FILE}")
+        df.to_excel(file_path, index=False)
+        
+        # Create download link
+        with open(file_path, 'rb') as f:
+            bytes_data = f.read()
+        b64 = base64.b64encode(bytes_data).decode()
+        
+        # Display success message with download link
+        download_link = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="{filename}">Download {filename}</a>'
+        st.markdown(f"Survey saved successfully! {download_link}", unsafe_allow_html=True)
+        
+        return True
     except Exception as e:
-        st.error(f"Error saving to Excel: {e}")
+        st.error(f"Error saving survey: {e}")
+        return False
 
 def start_page():
     """Start page with a title and a start button."""
@@ -104,53 +119,6 @@ def start_page():
         if st.button("Start Survey"):
             st.session_state["survey_started"] = True
             st.rerun()
-
-def main():
-    # Check if survey has started
-    if "survey_started" not in st.session_state:
-        start_page()
-        return
-
-    # Initialize survey data if not exists
-    if 'survey_data' not in st.session_state:
-        st.session_state.survey_data = {
-            'Property Ownership and Legal Documents': None,
-            'Trust/Society Details & Documents': None,
-            'Institutions Details & Documents': None
-        }
-
-    # Survey sections
-    categories = {
-        "Property Ownership and Legal Documents": property_survey,
-        "Trust/Society Details & Documents": trust_society_survey,
-        "Institutions Details & Documents": institution_survey
-    }
-
-    st.title("Survey Portal")
-    st.write("Select a survey category to proceed:")
-
-    # Allow user to choose section
-    choice = st.radio("Choose a survey category:", list(categories.keys()))
-
-    # Perform selected survey
-    survey_data = categories[choice]()
-
-    # Save the specific section data
-    st.session_state.survey_data[choice] = survey_data
-
-    # Prepare for final submission
-    if st.button("Submit Entire Survey"):
-        # Combine all sections
-        final_survey_data = {
-            'ashram_name': st.session_state.survey_data['Property Ownership and Legal Documents'].get('ashram_name', 'N/A'),
-            'Property Ownership and Legal Documents': st.session_state.survey_data['Property Ownership and Legal Documents'],
-            'Trust/Society Details & Documents': st.session_state.survey_data['Trust/Society Details & Documents'],
-            'Institutions Details & Documents': st.session_state.survey_data['Institutions Details & Documents']
-        }
-
-        # Save the entire survey data
-        save_survey_data(final_survey_data)
-        st.success("Survey submitted successfully!")
 
 def input_section(label, key, add_comment=True, add_upload=False):
     """Creates an input section with optional upload and comment boxes."""
@@ -240,6 +208,52 @@ def institution_survey():
     responses["mutation_inst"] = input_section("Mutation Certificate (Pokkuvaravu)", "mutation_inst", add_comment=False, add_upload=True)
     
     return responses
+
+def main():
+    # Check if survey has started
+    if "survey_started" not in st.session_state:
+        start_page()
+        return
+
+    # Initialize survey data if not exists
+    if 'survey_data' not in st.session_state:
+        st.session_state.survey_data = {
+            'Property Ownership and Legal Documents': None,
+            'Trust/Society Details & Documents': None,
+            'Institutions Details & Documents': None
+        }
+
+    # Survey sections
+    categories = {
+        "Property Ownership and Legal Documents": property_survey,
+        "Trust/Society Details & Documents": trust_society_survey,
+        "Institutions Details & Documents": institution_survey
+    }
+
+    st.title("Survey Portal")
+    st.write("Select a survey category to proceed:")
+
+    # Allow user to choose section
+    choice = st.radio("Choose a survey category:", list(categories.keys()))
+
+    # Perform selected survey
+    survey_data = categories[choice]()
+
+    # Save the specific section data
+    st.session_state.survey_data[choice] = survey_data
+
+    # Prepare for final submission
+    if st.button("Submit Entire Survey"):
+        # Combine all sections
+        final_survey_data = {
+            'ashram_name': st.session_state.survey_data['Property Ownership and Legal Documents'].get('ashram_name', 'N/A'),
+            'Property Ownership and Legal Documents': st.session_state.survey_data['Property Ownership and Legal Documents'],
+            'Trust/Society Details & Documents': st.session_state.survey_data['Trust/Society Details & Documents'],
+            'Institutions Details & Documents': st.session_state.survey_data['Institutions Details & Documents']
+        }
+
+        # Save the entire survey data
+        save_survey_data(final_survey_data)
 
 if __name__ == "__main__":
     main()
