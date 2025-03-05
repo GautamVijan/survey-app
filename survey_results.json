@@ -1,0 +1,157 @@
+[
+    {
+        "land_title": {
+            "number_of_documents": "23",
+            "additional_comments": "wwcwc"
+        },
+        "property_tax": {
+            "number_of_documents": "4",
+            "additional_comments": "xqkjwgxqj"
+        },
+        "land_survey": {
+            "number_of_documents": "77",
+            "additional_comments": "qwhgqwugd"
+        },
+        "mutation_cert": {
+            "number_of_documents": "33",
+            "additional_comments": "qwdjq"
+        },
+        "land_na": {
+            "number_of_documents": "64",
+            "additional_comments": "whjsgqs"
+        },
+        "registration_details": {
+            "number_of_documents": "4",
+            "additional_comments": "qwhjxq"
+        },
+        "building_permit": {
+            "number_of_documents": "22",
+            "additional_comments": "qwjhjqws"
+        },
+        "occupancy_cert": {
+            "number_of_documents": "45",
+            "additional_comments": "qwhjxgqwjh"
+        },
+        "approved_plans": {
+            "number_of_documents": "4",
+            "additional_comments": "qwjhgsj"
+        },
+        "renovation_approvals": {
+            "number_of_documents": "67",
+            "additional_comments": "qwdw"
+        }
+    },
+    {
+        "ashram_name": "NBHS",
+        "Property Ownership and Legal Documents": {
+            "ashram_name": "NBHS",
+            "land_title": {
+                "number_of_documents": "2",
+                "additional_comments": "qxxqax"
+            },
+            "property_tax": {
+                "number_of_documents": "23",
+                "additional_comments": "xjax"
+            },
+            "land_survey": {
+                "number_of_documents": "45",
+                "additional_comments": "jiwjx"
+            },
+            "mutation_cert": {
+                "number_of_documents": "57",
+                "additional_comments": "xwh"
+            },
+            "land_na": {
+                "number_of_documents": "46",
+                "additional_comments": "gdg"
+            },
+            "registration_details": {
+                "number_of_documents": "7",
+                "additional_comments": "jhbxj"
+            },
+            "building_permit": {
+                "number_of_documents": "45",
+                "additional_comments": "hjbxh"
+            },
+            "occupancy_cert": {
+                "number_of_documents": "",
+                "additional_comments": ""
+            },
+            "approved_plans": {
+                "number_of_documents": "34",
+                "additional_comments": "ccc"
+            },
+            "renovation_approvals": {
+                "number_of_documents": "",
+                "additional_comments": ""
+            }
+        },
+        "Trust/Society Details & Documents": {
+            "trust_deed": {
+                "number_of_documents": ""
+            },
+            "minority_certificate": {
+                "number_of_documents": ""
+            },
+            "deed_society_cert": {
+                "number_of_documents": ""
+            },
+            "society_renewal": {
+                "number_of_documents": ""
+            },
+            "noc_government": {
+                "number_of_documents": ""
+            },
+            "pan_card": {
+                "number_of_documents": "no"
+            },
+            "amc_mou": {
+                "number_of_documents": ""
+            },
+            "income_tax": {
+                "number_of_documents": "asjb"
+            },
+            "bank_kyc_resolution": {
+                "number_of_documents": ""
+            },
+            "darpan_cert": {
+                "number_of_documents": ""
+            },
+            "trust_meeting_reports": {
+                "number_of_documents": ""
+            }
+        },
+        "Institutions Details & Documents": {
+            "institution_type": "Schools",
+            "institution_name": "NBHSJC",
+            "gov_approvals": {
+                "number_of_documents": ""
+            },
+            "sanction_province": {
+                "number_of_documents": ""
+            },
+            "electricity_sanction": {
+                "number_of_documents": ""
+            },
+            "property_deeds": {
+                "number_of_documents": ""
+            },
+            "land_sketch": {
+                "number_of_documents": ""
+            },
+            "land_tax": {
+                "number_of_documents": "ajaj"
+            },
+            "building_tax": {
+                "number_of_documents": ""
+            },
+            "land_na_inst": {
+                "number_of_documents": ""
+            },
+            "mutation_inst": {
+                "number_of_documents": ""
+            }
+        },
+        "timestamp": "2025-03-05 11:27:53"
+    }
+]
