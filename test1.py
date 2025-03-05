@@ -1,4 +1,36 @@
 import streamlit as st
+import sys
+import subprocess
+
+# Attempt to install dependencies if not present
+def install_dependencies():
+    """Attempt to install required dependencies"""
+    dependencies = ['openpyxl', 'pandas']
+    for dep in dependencies:
+        try:
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', dep])
+        except Exception as e:
+            st.error(f"Error installing {dep}: {e}")
+            return False
+    return True
+
+# Check and install dependencies
+def check_dependencies():
+    """Check and install missing dependencies"""
+    try:
+        import openpyxl
+        import pandas
+        return True
+    except ImportError:
+        st.warning("Missing required dependencies. Attempting to install...")
+        return install_dependencies()
+
+# Only proceed if dependencies are installed
+if not check_dependencies():
+    st.error("Could not install required dependencies. Please check your internet connection.")
+    st.stop()
+
+# Now import other required libraries
 import os
 import pandas as pd
 from datetime import datetime
